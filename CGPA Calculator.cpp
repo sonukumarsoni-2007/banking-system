@@ -1,38 +1,52 @@
-#include <stdio.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+
+using namespace std;
+
+struct Course {
+    string name;
+    int credits;
+    float grade;
+};
+
+float calculateCGPA(const vector<Course>& courses) {
+    int totalCredits = 0;
+    float totalGradePoints = 0.0;
+    for (const auto& course : courses) {
+        totalCredits += course.credits;
+        totalGradePoints += course.credits * course.grade;
+    }
+    return totalGradePoints / totalCredits;
+}
 
 int main() {
     int numCourses;
-    float grade, credit, totalCredits = 0, totalGradePoints = 0;
-    char courseName[100];
+    cout << "Enter the number of courses: ";
+    cin >> numCourses;
 
-    printf("Enter the number of courses: ");
-    scanf("%d", &numCourses);
+    vector<Course> courses(numCourses);
 
-    for (int i = 0; i < numCourses; i++) {
-        printf("\nCourse %d:\n", i + 1);
-        printf("Enter course name: ");
-        scanf(" %[^\n]", courseName);  // Reads course name with spaces
-        printf("Enter grade (on a 10-point scale): ");
-        scanf("%f", &grade);
-        printf("Enter credit hours: ");
-        scanf("%f", &credit);
-
-        totalGradePoints += grade * credit;
-        totalCredits += credit;
+    for (int i = 0; i < numCourses; ++i) {
+        cout << "\nEnter details for course " << i + 1 << ":\n";
+        cout << "Course name: ";
+        cin.ignore(); // To clear the newline character left in the buffer
+        getline(cin, courses[i].name);
+        cout << "Credits: ";
+        cin >> courses[i].credits;
+        cout << "Grade (as a number, e.g., 9.0 for A): ";
+        cin >> courses[i].grade;
     }
 
-    if (totalCredits == 0) {
-        printf("\nTotal credit hours cannot be zero.\n");
-        return 1;
+    cout << "\n\nCourse Details:\n";
+    cout << left << setw(20) << "Course Name" << setw(10) << "Credits" << setw(10) << "Grade" << endl;
+    for (const auto& course : courses) {
+        cout << left << setw(20) << course.name << setw(10) << course.credits << setw(10) << course.grade << endl;
     }
 
-    float cgpa = totalGradePoints / totalCredits;
-    float percentage = cgpa * 9.5;
-
-    printf("\nTotal Grade Points: %.2f", totalGradePoints);
-    printf("\nTotal Credit Hours: %.2f", totalCredits);
-    printf("\nCGPA: %.2f", cgpa);
-    printf("\nEquivalent Percentage: %.2f%%\n", percentage);
+    float cgpa = calculateCGPA(courses);
+    cout << "\nYour CGPA is: " << fixed << setprecision(2) << cgpa << endl;
 
     return 0;
 }
