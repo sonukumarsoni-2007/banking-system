@@ -1,100 +1,170 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string>
 
-struct BankAccount {
+class Account {
+private:
     int accountNumber;
-    char name[100];
-    float balance;
+    std::string accountHolder;
+    double balance;
+
+public:
+    Account(int accNum, const std::string& holder, double initialBalance)
+        : accountNumber(accNum), accountHolder(holder), balance(initialBalance) {}
+
+    void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            std::cout << "Deposited: " << amount << "\nNew Balance: " << balance << std::endl;
+        } else {
+            std::cout << "Invalid deposit amount.\n";
+        }
+    }
+
+    void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            std::cout << "Withdrawn: " << amount << "\nRemaining Balance: " << balance << std::endl;
+        } else {
+            std::cout << "Invalid withdrawal amount or insufficient funds.\n";
+        }
+    }
+
+    void transfer(Account& toAccount, double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            toAccount.balance += amount;
+            std::cout << "Transferred: " << amount << "\nYour New Balance: " << balance
+                      << "\nRecipient's New Balance: " << toAccount.balance << std::endl;
+        } else {
+            std::cout << "Invalid transfer amount or insufficient funds.\n";
+        }
+    }
+
+    void displayAccountInfo() const {
+        std::cout << "Account Number: " << accountNumber
+                  << "\nAccount Holder: " << accountHolder
+                  << "\nBalance: " << balance << std::endl;
+    }
+
+    int getAccountNumber() const {
+        return accountNumber;
+    }
 };
 
-void createAccount(struct BankAccount *account) {
-    printf("Enter Account Number: ");
-    scanf("%d", &account->accountNumber);
-    printf("Enter Account Holder Name: ");
-    getchar(); // to consume newline
-    fgets(account->name, sizeof(account->name), stdin);
-    account->name[strcspn(account->name, "\n")] = 0; // remove newline
-    account->balance = 0.0;
-    printf("Account created successfully!\n");
-}
+class Bank {
+private:
+    std::vector<Account> accounts;
 
-void displayAccount(struct BankAccount account) {
-    printf("\n--- Account Details ---\n");
-    printf("Account Number: %d\n", account.accountNumber);
-    printf("Name: %s\n", account.name);
-    printf("Balance: ?%.2f\n", account.balance);
-}
-
-void deposit(struct BankAccount *account) {
-    float amount;
-    printf("Enter amount to deposit: ?");
-    scanf("%f", &amount);
-    if (amount > 0) {
-        account->balance += amount;
-        printf("Amount deposited successfully!\n");
-    } else {
-        printf("Invalid amount!\n");
+public:
+    void createAccount(int accNum, const std::string& holder, double initialBalance) {
+        accounts.emplace_back(accNum, holder, initialBalance);
+        std::cout << "Account created successfully.\n";
     }
-}
 
-void withdraw(struct BankAccount *account) {
-    float amount;
-    printf("Enter amount to withdraw: ?");
-    scanf("%f", &amount);
-    if (amount > 0 && amount <= account->balance) {
-        account->balance -= amount;
-        printf("Amount withdrawn successfully!\n");
-    } else {
-        printf("Insufficient balance or invalid amount!\n");
+    Account* findAccount(int accNum) {
+        for (auto& acc : accounts) {
+            if (acc.getAccountNumber() == accNum) {
+                return &acc;
+            }
+        }
+        std::cout << "Account not found.\n";
+        return nullptr;
     }
-}
+
+    void displayAllAccounts() const {
+        for (const auto& acc : accounts) {
+            acc.displayAccountInfo();
+            std::cout << "-----------------------------\n";
+        }
+    }
+};
 
 int main() {
-    struct BankAccount account;
-    int choice;
-    int accountCreated = 0;
+    Bank bank;
+    int choice, accNum;
+    std::string holder;
+    double amount;
 
     do {
-        printf("\n==== Banking System Menu ====\n");
-        printf("1. Create Account\n");
-        printf("2. View Account\n");
-        printf("3. Deposit Money\n");
-        printf("4. Withdraw Money\n");
-        printf("5. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
+        std::cout << "\nBank Management System\n";
+        std::cout << "1. Create Account\n";
+        std::cout << "2. Deposit\n";
+        std::cout << "3. Withdraw\n";
+        std::cout << "4. Transfer\n";
+        std::cout << "5. Display Account Info\n";
+        std::cout << "6. Display All Accounts\n";
+        std::cout << "7. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
 
-        switch(choice) {
+        switch (choice) {
             case 1:
-                createAccount(&account);
-                accountCreated = 1;
+                std::cout << "Enter Account Number: ";
+                std::cin >> accNum;
+                std::cin.ignore();
+                std::cout << "Enter Account Holder Name: ";
+                std::getline(std::cin, holder);
+                std::cout << "Enter Initial Deposit: ";
+                std::cin >> amount;
+                bank.createAccount(accNum, holder, amount);
                 break;
+
             case 2:
-                if (accountCreated)
-                    displayAccount(account);
-                else
-                    printf("No account found! Please create one.\n");
+                std::cout << "Enter Account Number: ";
+                std::cin >> accNum;
+                if (Account* acc = bank.findAccount(accNum)) {
+                    std::cout << "Enter Deposit Amount: ";
+                    std::cin >> amount;
+                    acc->deposit(amount);
+                }
                 break;
+
             case 3:
-                if (accountCreated)
-                    deposit(&account);
-                else
-                    printf("No account found! Please create one.\n");
+                std::cout << "Enter Account Number: ";
+                std::cin >> accNum;
+                if (Account* acc = bank.findAccount(accNum)) {
+                    std::cout << "Enter Withdrawal Amount: ";
+                    std::cin >> amount;
+                    acc->withdraw(amount);
+                }
                 break;
+
             case 4:
-                if (accountCreated)
-                    withdraw(&account);
-                else
-                    printf("No account found! Please create one.\n");
+                int toAccNum;
+                std::cout << "Enter Your Account Number: ";
+                std::cin >> accNum;
+                if (Account* fromAcc = bank.findAccount(accNum)) {
+                    std::cout << "Enter Recipient Account Number: ";
+                    std::cin >> toAccNum;
+                    if (Account* toAcc = bank.findAccount(toAccNum)) {
+                        std::cout << "Enter Transfer Amount: ";
+                        std::cin >> amount;
+                        fromAcc->transfer(*toAcc, amount);
+                    }
+                }
                 break;
+
             case 5:
-                printf("Thank you for using the banking system. Goodbye!\n");
+                std::cout << "Enter Account Number: ";
+                std::cin >> accNum;
+                if (Account* acc = bank.findAccount(accNum)) {
+                    acc->displayAccountInfo();
+                }
                 break;
+
+            case 6:
+                bank.displayAllAccounts();
+                break;
+
+            case 7:
+                std::cout << "Exiting the system.\n";
+                break;
+
             default:
-                printf("Invalid choice. Try again!\n");
+                std::cout << "Invalid choice. Please try again.\n";
         }
-    } while (choice != 5);
+    } while (choice != 7);
 
     return 0;
 }
