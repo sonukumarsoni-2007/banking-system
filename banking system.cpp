@@ -7,11 +7,9 @@ private:
     int accountNumber;
     std::string accountHolder;
     double balance;
-
 public:
     Account(int accNum, const std::string& holder, double initialBalance)
         : accountNumber(accNum), accountHolder(holder), balance(initialBalance) {}
-
     void deposit(double amount) {
         if (amount > 0) {
             balance += amount;
@@ -29,7 +27,6 @@ public:
             std::cout << "Invalid withdrawal amount or insufficient funds.\n";
         }
     }
-
     void transfer(Account& toAccount, double amount) {
         if (amount > 0 && amount <= balance) {
             balance -= amount;
@@ -40,7 +37,6 @@ public:
             std::cout << "Invalid transfer amount or insufficient funds.\n";
         }
     }
-
     void displayAccountInfo() const {
         std::cout << "Account Number: " << accountNumber
                   << "\nAccount Holder: " << accountHolder
@@ -51,7 +47,6 @@ public:
         return accountNumber;
     }
 };
-
 class Bank {
 private:
     std::vector<Account> accounts;
@@ -61,7 +56,6 @@ public:
         accounts.emplace_back(accNum, holder, initialBalance);
         std::cout << "Account created successfully.\n";
     }
-
     Account* findAccount(int accNum) {
         for (auto& acc : accounts) {
             if (acc.getAccountNumber() == accNum) {
@@ -71,7 +65,6 @@ public:
         std::cout << "Account not found.\n";
         return nullptr;
     }
-
     void displayAllAccounts() const {
         for (const auto& acc : accounts) {
             acc.displayAccountInfo();
@@ -85,7 +78,6 @@ int main() {
     int choice, accNum;
     std::string holder;
     double amount;
-
     do {
         std::cout << "\nBank Management System\n";
         std::cout << "1. Create Account\n";
@@ -97,7 +89,6 @@ int main() {
         std::cout << "7. Exit\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
-
         switch (choice) {
             case 1:
                 std::cout << "Enter Account Number: ";
@@ -109,7 +100,6 @@ int main() {
                 std::cin >> amount;
                 bank.createAccount(accNum, holder, amount);
                 break;
-
             case 2:
                 std::cout << "Enter Account Number: ";
                 std::cin >> accNum;
@@ -119,7 +109,6 @@ int main() {
                     acc->deposit(amount);
                 }
                 break;
-
             case 3:
                 std::cout << "Enter Account Number: ";
                 std::cin >> accNum;
@@ -129,7 +118,6 @@ int main() {
                     acc->withdraw(amount);
                 }
                 break;
-
             case 4:
                 int toAccNum;
                 std::cout << "Enter Your Account Number: ";
@@ -144,7 +132,6 @@ int main() {
                     }
                 }
                 break;
-
             case 5:
                 std::cout << "Enter Account Number: ";
                 std::cin >> accNum;
@@ -152,19 +139,16 @@ int main() {
                     acc->displayAccountInfo();
                 }
                 break;
-
             case 6:
                 bank.displayAllAccounts();
                 break;
-
             case 7:
                 std::cout << "Exiting the system.\n";
                 break;
-
             default:
                 std::cout << "Invalid choice. Please try again.\n";
         }
     } while (choice != 7);
-
+    
     return 0;
 }
