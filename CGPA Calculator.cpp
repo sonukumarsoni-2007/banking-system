@@ -31,7 +31,7 @@ int main() {
     for (int i = 0; i < numCourses; ++i) {
         cout << "\nEnter details for course " << i + 1 << ":\n";
         cout << "Course name: ";
-        cin.ignore(); // To clear the newline character left in the buffer
+        cin.ignore(); 
         getline(cin, courses[i].name);
         cout << "Credits: ";
         cin >> courses[i].credits;
